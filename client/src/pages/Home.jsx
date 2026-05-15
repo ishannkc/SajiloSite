@@ -1,5 +1,8 @@
-import React from 'react'
+import {useState} from 'react'
 import {motion} from 'motion/react'
+import LoginModal from '../components/LoginModal.jsx'
+
+
 function Home() {
 
     const hightlights = [
@@ -7,6 +10,8 @@ function Home() {
             'Fully Responsive',
             'Production Ready',
     ]
+
+        const [openLogin, setOpenLogin] = useState(false)
 
   return (
     <div className='relative min-h-screen bg-[#040404] text-white 
@@ -22,7 +27,8 @@ function Home() {
                 </div>
 
                 <div className='flex items-center gap-5'>
-                    <button className = 'px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'>
+                    <button className = 'px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
+                    onClick={()=>setOpenLogin(true)}>
                       Get Started  
                     </button>
                 </div>
@@ -49,9 +55,9 @@ function Home() {
 
         <section className='max-w-7xl mx-auto px-6 pb-32'>
             <div className = 'grid grid-cols-1 md:grid-cols-3 gap-10'>
-                {hightlights.map((h,i)=>(
+                {hightlights.map((h)=>(
                     <motion.div
-                        key={i}
+                        key={h}
                         initial = {{opacity:0, y:40}}
                         whileInView={{opacity:1, y:0}}
                         className='rounded-2xl bg-white/5 border border-white/10 p-8'
@@ -69,6 +75,8 @@ function Home() {
         <footer className = 'border-t border-white/10 py-10 text-center text-sm text-zinc-500' >
             &copy;{new Date().getFullYear()} SajiloSite
         </footer>
+
+                <LoginModal open={openLogin} onClose={() => setOpenLogin(false)} />
     </div>
   )
 }
