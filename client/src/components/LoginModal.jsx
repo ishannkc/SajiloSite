@@ -1,6 +1,36 @@
 import React from 'react'
 import {AnimatePresence, motion} from 'motion/react'
+import { auth, provider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
+import axios from "axios"
+import {serverUrl} from '../config.js'
+
 function LoginModal({open, onClose}) {
+  
+  const handleGoogleAuth=async ()=>{
+    try {
+      console.log("Starting Google Sign-In...");
+      const result = await signInWithPopup(auth, provider);
+      console.log("Google Sign-In successful:", result.user);
+      
+      console.log("Sending data to backend:", {
+        name: result.user.displayName,
+        email: result.user.email,
+        avatar: result.user.photoURL,
+        uid: result.user.uid
+      });
+      
+      const {data} = await axios.post(`${serverUrl}/api/auth/google`,{
+        name: result.user.displayName,
+        email: result.user.email,
+        avatar: result.user.photoURL,
+        uid: result.user.uid
+      },{withCredentials: true})
+      console.log("Backend response:", data);
+    } catch (error) {
+      console.error("Google Sign-In Error:", error.message);
+      console.error("Full error:", error);
+    } }
   return (
     <AnimatePresence>
        {open && 
@@ -50,6 +80,7 @@ function LoginModal({open, onClose}) {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={handleGoogleAuth}
                       className='mt-4 w-full inline-flex items-center justify-center px-6 py-3 rounded-full bg-white text-black font-semibold shadow-lg overflow-hidden'
                       >
                       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/3840px-Google_%22G%22_logo.svg.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail" alt="Google Logo" className='w-5 h-5 mr-3' />

@@ -1,6 +1,8 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {motion} from 'motion/react'
 import LoginModal from '../components/LoginModal.jsx'
+import { auth } from '../firebase'
+import { onAuthStateChanged, getRedirectResult, signOut } from 'firebase/auth'
 
 
 function Home() {
@@ -12,6 +14,36 @@ function Home() {
     ]
 
         const [openLogin, setOpenLogin] = useState(false)
+        const [user, setUser] = useState(null)
+        const [authReady, setAuthReady] = useState(false)
+
+        useEffect(() => {
+            const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                setUser(currentUser)
+                setAuthReady(true)
+                if (currentUser) {
+                    setOpenLogin(false)
+                }
+            })
+
+            getRedirectResult(auth)
+                .then((result) => {
+                    if (result?.user) {
+                        setUser(result.user)
+                        setOpenLogin(false)
+                    }
+                })
+                .catch((error) => {
+                    console.log('Google redirect result error:', error)
+                })
+
+            return () => unsubscribe()
+        }, [])
+
+        const handleSignOut = async () => {
+            await signOut(auth)
+            setUser(null)
+        }
 
   return (
     <div className='relative min-h-screen bg-[#040404] text-white 
@@ -27,10 +59,24 @@ function Home() {
                 </div>
 
                 <div className='flex items-center gap-5'>
-                    <button className = 'px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
-                    onClick={()=>setOpenLogin(true)}>
-                      Get Started  
-                    </button>
+                                        {authReady && user ? (
+                                                <>
+                                                    <span className='hidden sm:inline text-sm text-zinc-300'>
+                                                        {user.displayName || user.email}
+                                                    </span>
+                                                    <button
+                                                        className='px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
+                                                        onClick={handleSignOut}
+                                                    >
+                                                        Sign Out
+                                                    </button>
+                                                </>
+                                        ) : (
+                                                <button className='px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
+                                                onClick={()=>setOpenLogin(true)}>
+                                                    Get Started  
+                                                </button>
+                                        )}
                 </div>
             </div>
         </motion.div>
@@ -50,7 +96,9 @@ function Home() {
                 Describe your idea and let AI generate a website for you.
             </motion.p>
             
-                <button className='px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12'>Get Started</button>
+                                <button className='px-10 py-4 rounded-xl bg-white text-black font-semibold hover:scale-105 transition mt-12' onClick={() => setOpenLogin(true)}>
+                                    {user ? 'Signed In' : 'Get Started'}
+                                </button>
         </section>
 
         <section className='max-w-7xl mx-auto px-6 pb-32'>

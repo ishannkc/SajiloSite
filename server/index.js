@@ -13,7 +13,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: true,
     credentials: true
 }))
 
@@ -22,8 +22,8 @@ app.use('/api/auth', authRouter)
 const startServer = async () => {
     try {
         await connectDb()
-        app.listen(port,()=>{
-            console.log('Server started')
+        app.listen(port, '0.0.0.0', ()=>{
+            console.log(`Server started on http://localhost:${port}`)
         })
     } catch (error) {
         console.error('Failed to start server')

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 
 export const googleAuth = async(req, res)=>{
     try{
+        console.log("Google Auth Request Received:", req.body)
         const {name, email, avatar} = req.body
         if(!email){
             return res.status(400).json({
@@ -11,31 +12,37 @@ export const googleAuth = async(req, res)=>{
         }
         let user = await User.findOne({email})
         if(!user){
-            user=await User.create({name, email, avatar})
+            console.log("Creating new user with data:", {name, email, avatar})
+            user = await User.create({name, email, avatar})
+            console.log("New user created successfully:", user)
+        } else {
+            console.log("User already exists:", user)
         }
         const token = await jwt.sign({id:user._id}, process.env.JWT_SECRET,{expiresIn: "7d"})
 
-        res.cookies("token", token,{
+        res.cookie("token", token,{
             httpOnly:true,
             secure:false,
-            saameSite:"strict",
+            sameSite:"strict",
             maxAge:7*24*60*60*1000
-        } )
+        })
 
-        return res.status(200).json(user)
+        return res.status(200).json({success: true, user, token})
     } catch(error){
-        return res.status(500).json({message: `Google Auth Error ${error}`})
+        console.error("Google Auth Error:", error)
+        return res.status(500).json({message: `Google Auth Error ${error.message}`})
     }
 }
 
 export const logOut = async(req,res)=>{
     try{
-        return res.clearCookie("token",{
-                httpOnly:true,
+        res.clearCookie("token",{
+            httpOnly:true,
             secure:false,
-            saameSite:"strict",
-        } )
+            sameSite:"strict"
+        })
+        return res.status(200).json({message: "Logged out successfully"})
     } catch(error){
          return res.status(500).json({message: `Log Out Error ${error}`})
     }
-    }
+}
