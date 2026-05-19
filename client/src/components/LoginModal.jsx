@@ -4,9 +4,11 @@ import { auth, provider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
 import axios from "axios"
 import {serverUrl} from '../config.js'
+import { useDispatch } from 'react-redux'
+import { setUserData } from '../redux/userSlice'
 
 function LoginModal({open, onClose}) {
-  
+  const dispatch = useDispatch()
   const handleGoogleAuth=async ()=>{
     try {
       console.log("Starting Google Sign-In...");
@@ -26,6 +28,7 @@ function LoginModal({open, onClose}) {
         avatar: result.user.photoURL,
         uid: result.user.uid
       },{withCredentials: true})
+      dispatch(setUserData(data.user))
       console.log("Backend response:", data);
     } catch (error) {
       console.error("Google Sign-In Error:", error.message);

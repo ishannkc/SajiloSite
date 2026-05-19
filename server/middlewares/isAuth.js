@@ -10,7 +10,7 @@ const isAuth=async (req,res,next)=>{
     req.user=await User.findById(decoded.id)
     next()
 }catch (error){
-    return res.status(500).json({error:"invalid token"})
+    return res.status(500).json({error:`invalid token: ${error.message}`})
 }
 }
 

@@ -3,6 +3,7 @@ import {motion} from 'motion/react'
 import LoginModal from '../components/LoginModal.jsx'
 import { auth } from '../firebase'
 import { onAuthStateChanged, getRedirectResult, signOut } from 'firebase/auth'
+import { useSelector } from 'react-redux'
 
 
 function Home() {
@@ -14,8 +15,16 @@ function Home() {
     ]
 
         const [openLogin, setOpenLogin] = useState(false)
+        const {userData}    = useSelector(state => state.user)
+
         const [user, setUser] = useState(null)
         const [authReady, setAuthReady] = useState(false)
+
+        const displayName = userData?.name || user?.displayName || user?.email
+        const fallbackAvatarUrl = displayName
+            ? `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff&size=128`
+            : null
+        const avatarUrl = userData?.avatar || user?.photoURL || fallbackAvatarUrl
 
         useEffect(() => {
             const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -59,11 +68,18 @@ function Home() {
                 </div>
 
                 <div className='flex items-center gap-5'>
-                                        {authReady && user ? (
+                                        {authReady && (user || userData) ? (
                                                 <>
                                                     <span className='hidden sm:inline text-sm text-zinc-300'>
-                                                        {user.displayName || user.email}
+                                                        {displayName}
                                                     </span>
+                                                    {avatarUrl ? (
+                                                        <img
+                                                            src={avatarUrl}
+                                                            className='w-9 h-9 rounded-full border border-white/20 object-cover'
+                                                            alt='User avatar'
+                                                        />
+                                                    ) : null}
                                                     <button
                                                         className='px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
                                                         onClick={handleSignOut}
@@ -72,10 +88,22 @@ function Home() {
                                                     </button>
                                                 </>
                                         ) : (
-                                                <button className='px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
-                                                onClick={()=>setOpenLogin(true)}>
-                                                    Get Started  
-                                                </button>
+                                                !userData ? (
+                                                    <button
+                                                        className='px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 text-sm'
+                                                        onClick={() => setOpenLogin(true)}
+                                                    >
+                                                        Get Started
+                                                    </button>
+                                                ) : (
+                                                    <button className='flex items-center'>
+                                                        <img
+                                                            src={avatarUrl}
+                                                            className='w-9 h-9 rounded-full border border-white/20 object-cover'
+                                                            alt='User avatar'
+                                                        />
+                                                    </button>
+                                                )
                                         )}
                 </div>
             </div>
