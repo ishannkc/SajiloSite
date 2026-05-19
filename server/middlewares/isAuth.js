@@ -9,8 +9,8 @@ const isAuth=async (req,res,next)=>{
     const decoded =await jwt.verify(token,process.env.JWT_SECRET)
     req.user=await User.findById(decoded.id)
     next()
-}catch (erroor){
-    return res.status(500).json({message:"invalid token"})
+}catch (error){
+    return res.status(500).json({error:"invalid token"})
 }
 }
 
