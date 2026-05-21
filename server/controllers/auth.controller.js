@@ -16,6 +16,17 @@ export const googleAuth = async(req, res)=>{
             user = await User.create({name, email, avatar})
             console.log("New user created successfully:", user)
         } else {
+            const updates = {}
+            if (name && user.name !== name) {
+                updates.name = name
+            }
+            if (avatar && user.avatar !== avatar) {
+                updates.avatar = avatar
+            }
+            if (Object.keys(updates).length) {
+                user.set(updates)
+                await user.save()
+            }
             console.log("User already exists:", user)
         }
         const token = await jwt.sign({id:user._id}, process.env.JWT_SECRET,{expiresIn: "7d"})
