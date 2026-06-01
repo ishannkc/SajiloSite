@@ -32,7 +32,12 @@ client/   # React app (Vite)
 server/   # Express API
 ```
 
+## Requirements
 
+- Node.js 18+ recommended
+- MongoDB connection string (Atlas or local)
+- Firebase project (Web app) for Google auth
+- OpenRouter API key
 
 ## Environment variables
 
