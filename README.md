@@ -91,7 +91,24 @@ npm run dev
 
 The client defaults to `http://localhost:5173`. The API defaults to `http://localhost:5000`.
 
+## Scripts
 
+Client (Vite) in [client/package.json](client/package.json)
+- `npm run dev` - start dev server
+- `npm run build` - production build
+- `npm run preview` - preview production build
+- `npm run lint` - ESLint
+
+Server (Express) in [server/package.json](server/package.json)
+- `npm run dev` - start API with nodemon
+
+## API routes
+
+- `POST /api/auth/google` - Google login / signup
+- `GET /api/auth/logout` - Clear auth cookie
+- `GET /api/user/me` - Get current user (requires auth)
+
+## OpenRouter model
 
 The backend uses OpenRouter with the Deepseek model:
 
