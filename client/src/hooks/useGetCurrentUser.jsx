@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { serverUrl } from '../config'
 import { useDispatch } from 'react-redux'
@@ -7,6 +7,7 @@ import { setUserData } from '../redux/userSlice'
 function useGetCurrentUser() {
 
     const dispatch = useDispatch()
+    const [loading, setLoading] = useState(true)
     useEffect(() => {
         const getCurrentUser = async () => {
             try {
@@ -18,10 +19,14 @@ function useGetCurrentUser() {
                 
             } catch (error) {
                 console.log( error)
+            } finally {
+                setLoading(false)
             }
         }
             getCurrentUser()
             }, [])
+
+    return { loading }
 
 }
 

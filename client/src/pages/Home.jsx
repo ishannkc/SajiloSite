@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
 import {AnimatePresence, motion} from 'motion/react'
 import LoginModal from '../components/LoginModal.jsx'
 import { auth } from '../firebase'
@@ -7,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { serverUrl } from '../config'
 import { setUserData } from '../redux/userSlice'
-import { Coins } from "lucide-react"
 
 function Home() {
 
@@ -31,6 +31,7 @@ function Home() {
             : null
         const avatarUrl = userData?.avatar || user?.photoURL || fallbackAvatarUrl
         const [avatarSrc, setAvatarSrc] = useState(avatarUrl)
+        const navigate = useNavigate()
 
         useEffect(() => {
             const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -113,12 +114,14 @@ function Home() {
                                     ) : null}
                                 </div>
                                 <div className='py-2'>
-                                    <a
-                                        href='/dashboard'
+                                    <button
                                         className='block px-4 py-2 text-sm text-zinc-200 hover:bg-white/10'
+                                        onClick={() => {navigate('/dashboard')
+                                           
+                                        }}
                                     >
                                         Dashboard
-                                    </a>
+                                    </button>
                                     <button
                                         className='w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/10'
                                         onClick={handleSignOut}
@@ -137,7 +140,7 @@ function Home() {
                     className='px-4 py-2 rounded-full border border-white/20 hover:bg-white/10 text-xs'
                     onClick={() => setOpenLogin(true)}
                 >
-                    Get Started
+                    {userData?"Go to dashboard":"Get Started"}
                 </button>
             )
         }
@@ -155,14 +158,6 @@ function Home() {
                     SajiloSite
                 </div>
                 <div className='flex items-center gap-4'>
-                    {userData && (
-                        <div className='flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs cursor-pointer hover:bg-white/10 transition'>
-                            <Coins size={14} className="text-yellow-400"/>
-                            <span className="text-zinc-300">Credits</span>
-                            <span>{userData.credits}</span>
-                            <span className="font-semibold">+</span>
-                        </div>
-                    )}
                     {authAction}
                 </div>
             </div>
@@ -190,9 +185,9 @@ function Home() {
                 animate={{opacity: 1, y: 0}}
                 transition={{duration: 0.5, delay: 0.2}}
                 className='px-10 py-3.5 rounded-full bg-white text-black font-semibold hover:scale-[1.02] transition mt-10'
-                onClick={() => setOpenLogin(true)}
+                onClick={() => (userData ? navigate('/dashboard') : setOpenLogin(true))}
             >
-                {user ? 'Signed In' : 'Get Started'}
+                {userData ? 'Go to dashboard' : user ? 'Signed In' : 'Get Started'}
             </motion.button>
         </section>
 
