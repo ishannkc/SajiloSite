@@ -1,17 +1,17 @@
 # SajiloSite
 
-AI website builder that generates modern, responsive sites using OpenRouter's Deepseek model. The app currently includes Google authentication, user sessions, and a basic generation UI; the generation flow is still under development.
+SajiloSite is an AI website builder that generates modern, responsive sites using OpenRouter's Deepseek model. It includes Google authentication, user sessions, and a basic generation UI. The generation flow is still under development.
 
 ## Tech stack
 
-Frontend:
+Frontend
 - React (Vite)
 - Tailwind CSS
-- Motion (Framer Motion compatible API via `motion`)
+- Motion (`motion`)
 - Redux Toolkit
 - Firebase Auth
 
-Backend:
+Backend
 - Node.js
 - Express
 - MongoDB (Mongoose)
@@ -22,7 +22,7 @@ Backend:
 
 - Google sign-in (Firebase Auth) with backend session cookie
 - Protected routes for dashboard and generation pages
-- User session lookup via `/api/user/me`
+- User session lookup via `GET /api/user/me`
 - Modern UI with Motion animations and Tailwind styling
 
 ## Repository structure
@@ -31,6 +31,8 @@ Backend:
 client/   # React app (Vite)
 server/   # Express API
 ```
+
+
 
 ## Environment variables
 
@@ -68,32 +70,28 @@ cd ../client
 npm install
 ```
 
-### 2) Run locally
+### 2) Run locally (two terminals)
 
 ```
 # API
 cd server
 npm run dev
+```
 
+```
 # Web
-cd ../client
+cd client
 npm run dev
 ```
 
 The client defaults to `http://localhost:5173`. The API defaults to `http://localhost:5000`.
 
-## API routes
 
-- `POST /api/auth/google` - Google login / signup
-- `GET /api/auth/logout` - Clear auth cookie
-- `GET /api/user/me` - Get current user (requires auth)
-
-## OpenRouter model
 
 The backend uses OpenRouter with the Deepseek model:
 
 ```
-const model = "deepseek/deepseek-chat"
+const model = "deepseek/deepseek-chat";
 ```
 
 See [server/config/openRouter.js](server/config/openRouter.js) for request configuration.
