@@ -1,3 +1,5 @@
+import { generateResponse } from "../config/openRouter.js"
+
 const masterPrompt = `
                YOU ARE A PRINCIPAL FRONTEND ARCHITECT
 AND A SENIOR UI/UX ENGINEER
@@ -146,6 +148,10 @@ export const generateWebsite=async (req,res) => {
         if(!user){
             return res.status(400).json({message:"usser not found"})
         }
+
+        const finalPrompt = masterPrompt.replace('USER_PROMPT', prompt)
+        let raw= ''
+       raw =  await generateResponse(finalPrompt)
 
     }catch (error) {
         
