@@ -9,7 +9,7 @@ const extractJson = async (text)=>{
         .trim()
 
             const firstBrace = cleaned.indexOf('{')
-            const closeBrace = cleaned.indexOf('}')
+            const closeBrace = cleaned.lastIndexOf('}')
             if(firstBrace ===-1 || closeBrace===-1) 
                 return null
             const jsonString = cleaned.slice(firstBrace, closeBrace+1)

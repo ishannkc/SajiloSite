@@ -1,4 +1,5 @@
 import { generateResponse } from "../config/openRouter.js"
+import User from "../models/user.model.js"
 import Website from "../models/website.model.js"
 import extractJson from "../utils/extractJson.js"
 
@@ -146,9 +147,10 @@ export const generateWebsite=async (req,res) => {
         if(!prompt){
             return res.status(400).json({message:"prompt is required"})
         }
-        const user=req.user
+        const user= await User.findById(req.user._id)
+        console.log(user)
         if(!user){
-            return res.status(400).json({message:"usser not found"})
+            return res.status(400).json({message:"user not found"})
         }
 
         const finalPrompt = masterPrompt.replace('USER_PROMPT', prompt)
@@ -163,6 +165,8 @@ export const generateWebsite=async (req,res) => {
                 raw = await generateResponse(finalPrompt + "\n\nRETURN ONLY RAW JSON.")
                 parsed  = await extractJson(raw)
             }
+            console.log(raw)
+            console.log(parsed)
         }
 
         if(!parsed.code){

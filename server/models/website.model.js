@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { randomUUID } from "crypto";
 
 //conversation history
 const messageSchema = new mongoose.Schema({
@@ -41,7 +42,8 @@ const websiteSchema = new mongoose.Schema({
     //uniquely identify generated websites(each generated website has a unique id attached to it)
     slug: {
         type:String,
-        unique: true
+        unique: true,
+        default: () => randomUUID()
     }
 },{timestamps: true})
 
