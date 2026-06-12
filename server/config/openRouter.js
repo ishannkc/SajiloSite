@@ -27,7 +27,7 @@ if(!res.ok){
     throw new Error("openRouter err"+err)
 }
 const data=await res.json()
-return data
+return data.choices[0].message.content
 
 }
 
