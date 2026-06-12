@@ -1,8 +1,8 @@
 const openRouter="https://openrouter.ai/api/v1/chat/completions"
 const model="deepseek/deepseek-chat"
 
-const generateReponse=async (prompt)=>{
-const res =await fetch('openRouterUrl', {
+export const generateResponse=async (prompt)=>{
+const res =await fetch(openRouter, {
   method: 'POST',
   headers: {
     Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -11,11 +11,12 @@ const res =await fetch('openRouterUrl', {
   body: JSON.stringify({
     model: model,
     messages: [
-        {role:"system",content:"You must return only valid raw JSON."},
+        {role:"system",
+          content:"You must return only valid raw JSON."},
       {
         role: 'user',
         content: prompt,
-      },
+      },  
     ],
     temperature:0.2
   }),
