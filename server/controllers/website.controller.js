@@ -1,4 +1,6 @@
 import { generateResponse } from "../config/openRouter.js"
+import Website from "../models/website.model.js"
+import extractJson from "../utils/extractJson.js"
 
 const masterPrompt = `
                YOU ARE A PRINCIPAL FRONTEND ARCHITECT
@@ -151,10 +153,47 @@ export const generateWebsite=async (req,res) => {
 
         const finalPrompt = masterPrompt.replace('USER_PROMPT', prompt)
         let raw= ''
-       raw =  await generateResponse(finalPrompt)
+        let parsed = null
+       //iterate until parsed data is not received
+        for(let i =0; i<2 && !parsed; i++){
+            raw = await generateResponse(finalPrompt)
+            parsed = await extractJson(raw)
 
+            if(!parsed){
+                raw = await generateResponse(finalPrompt + "\n\nRETURN ONLY RAW JSON.")
+                parsed  = await extractJson(raw)
+            }
+        }
+
+        if(!parsed.code){
+            console.log('ai returned invalid response')
+            return res.status(400).json({message: 'ai returned invalid response'})
+        }
+
+        const website = await Website.create({
+            user: user._id,
+            title: prompt.slice(0, 60),
+            latestCode: parsed.code,
+            conversation: [
+                {
+                    role: 'ai',
+                    content: parsed.message
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ]
+        })
+
+        await user.save()
+
+        return res.status(200).json({
+            websiteId: website._id,
+            
+        })
     }catch (error) {
-        
+        return res.status(500).json({message: `generate website error ${error}`})
     }
 }
 
