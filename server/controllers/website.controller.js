@@ -138,6 +138,8 @@ ABSOLUTE RULES
 - NO extra text
 - FORMAT MUST MATCH EXACTLY
 - IF FORMAT IS BROKEN → RESPONSE IS INVALID
+FOOTER RULE:
+- Do not generate any copyright footer, "All rights reserved" text, or default site footer unless explicitly requested.
 `
 
 
@@ -201,3 +203,17 @@ export const generateWebsite=async (req,res) => {
     }
 }
 
+export const getWebsiteById = async(req,res)=>{
+    try{
+        const website = await Website.findOne({
+            _id:req.params.id,
+            user:req.user._id
+        })
+        if(!website){
+            return res.status(400).json({message: 'Website not found'})
+        }
+        return res.status(200).json(website)
+    }catch(error){
+        return res.status(500).json({message: `Get  website by id error : ${error}`})
+    }
+}
