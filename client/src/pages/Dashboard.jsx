@@ -15,7 +15,7 @@ function Dashboard() {
           <h1>Dashboard</h1>
         </div>
         <button className='bg-white text-black px-4 py-2 rounded-lg text-sm font-semibold hover:scale-105 transition' onClick={()=>navigate("/generate")}>
-          + New Wbsite
+          + New Website
         </button>
       </div>
       </div>
