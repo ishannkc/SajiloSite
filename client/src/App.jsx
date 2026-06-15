@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard'
 import Generate from './pages/Generate'
 import { useSelector } from 'react-redux'
 import useGetCurrentUser from './hooks/useGetCurrentUser'
+import Editor from './pages/Editor'
+
 export const serverUrl = "http://localhost:8000"
 function App() {
   const { loading } = useGetCurrentUser()
@@ -17,6 +19,7 @@ function App() {
           <Route path = '/' element={<Home/>}/>
           <Route path = '/dashboard' element={userData?<Dashboard/>:<Navigate to={"/"}/>}/>
           <Route path = '/generate' element={userData?<Generate/>:<Navigate to={"/"}/>}/>
+          <Route path = '/editor/:id' element={userData?<Editor/>:<Navigate to={"/"}/>}/>
       </Routes> 
     </BrowserRouter>
 
