@@ -94,7 +94,7 @@ SPA VISIBILITY RULE (MANDATORY)
 - At least ONE page MUST be visible on initial load
 - Hiding all content is INVALID
 
-REQUIRED SPA PAGES
+REQUIRED SPA PAGES (ALL are responsive)
 
 - Home
 - About
@@ -139,7 +139,7 @@ ABSOLUTE RULES
 - FORMAT MUST MATCH EXACTLY
 - IF FORMAT IS BROKEN → RESPONSE IS INVALID
 FOOTER RULE:
-- Do not generate any copyright footer, "All rights reserved" text, or default site footer unless explicitly requested.
+- When generating copyright FOOTER, use the latest date(2026)
 `
 
 
