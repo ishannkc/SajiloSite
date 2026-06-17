@@ -9,24 +9,49 @@ function Editor() {
 
   const [website, setWebsite] = useState(null);
   const [error, setError] = useState("");
-  const [code, setCode] = useState('')
-  const [messages, setMessages] = useState([])
-  const [prompt, setPrompt]=useState('')
+  const [code, setCode] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [prompt, setPrompt] = useState("");
   const iframeRef = useRef(null);
-
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [thinkingIndex, setThinkingIndex] = useState(0);
+  const thinkingSteps = [
+    "Understanding your request...",
+    "Planning layout changes...",
+    "Improving responsiveness...",
+    "Applying final touches...",
+    "Finalizing update...",
+  ];
 
   const handleUpdate = async () => {
-    setMessages((m)=>[...m,{role:'user', content:prompt}])
-      try {
-          const result = await axios.post(`${serverUrl}/api/website/update/${id}`, {prompt},
-            {withCredentials: true})
-            console.log(result)
-            setMessages((m)=>[...m,{role:'ai', content:result.data.message}])
-            setCode(result.data.code)
-      } catch (error) {
-          console.log(error)
-      }
-  }
+    if(!prompt) return;
+    setUpdateLoading(true);
+    const text = prompt
+    setPrompt("")
+    setMessages((m) => [...m, { role: "user", content: prompt }]);
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/website/update/${id}`,
+        { prompt: text },
+        { withCredentials: true },
+      );
+      console.log(result);
+      setUpdateLoading(false);
+      setMessages((m) => [...m, { role: "ai", content: result.data.message }]);
+      setCode(result.data.code);
+    } catch (error) {
+      setUpdateLoading(false);
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    if(!updateLoading) return;
+    const i = setInterval(() => {
+      setThinkingIndex((i) => (i + 1) % thinkingSteps.length);
+    }, 1200);
+
+    return () => clearInterval(i);
+  }, [updateLoading]);
 
   useEffect(() => {
     const handleGetWebsite = async () => {
@@ -38,9 +63,8 @@ function Editor() {
         console.log(result);
         setWebsite(result.data);
 
-        setCode(result.data.latestCode)
-        setMessages(result.data.conversation)
-
+        setCode(result.data.latestCode);
+        setMessages(result.data.conversation);
       } catch (error) {
         console.log(error);
         setError(error?.response?.data?.message || "Failed to load website");
@@ -55,7 +79,7 @@ function Editor() {
     const url = URL.createObjectURL(blob);
     iframeRef.current.src = url;
     return () => URL.revokeObjectURL(url);
-  }, [website?.latestCode]);
+  }, [code]);
 
   if (error) {
     return (
@@ -75,49 +99,63 @@ function Editor() {
 
   return (
     <div className="h-screen w-screen flex bg-black text-white overflow-hidden">
-      <aside className="hidden lg:flex w-[380px] flex-col border-r border-white/10 bg-black/80">
+      <aside className="hidden lg:flex w-95 flex-col border-r border-white/10 bg-black/80">
         <Header />
 
         {/* chat */}
-          <>
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-          {messages?.map((m, i) => (
-            <div
-              key={i}
-              className={`max-w-[85%] ${
-                m.role === "user" ? "ml-auto" : "mr-auto"
-              }`}
-            >
+        <>
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            {messages?.map((m, i) => (
               <div
-                className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed 
+                key={i}
+                className={`max-w-[85%] ${
+                  m.role === "user" ? "ml-auto" : "mr-auto"
+                }`}
+              >
+                <div
+                  className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed 
                         ${
                           m.role === "user"
                             ? "bg-white text-black"
                             : "bg-white/5 border border-white/10 text-zinc-200"
                         }`}
-              >
-                {m.content}
+                >
+                  {m.content}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-         
-        </div>
+            {updateLoading && 
+            
+            <div className="max-w-[85%] mr-auto">
+                <div className="px-4 py-2.5 rounded-2xl text-xs bg-white/5 border border-white/10 text-zinc-400 italic">{thinkingSteps[thinkingIndex]}</div>
+              </div>}
+          </div>
 
-         <div className="p-3 border-t border-white/10">
-            <div className="flex gap-2">
+          <div className="p-3 border-t border-white/10">
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdate();
+              }}
+            >
               <input
                 placeholder="Describe Changes..."
                 className="flex-1 resize-none rounded-2xl px-4 py-3 bg-white/5 border border-white/10 text-sm outline-none"
-                onChange={(e)=>setPrompt(e.target.value)} value={prompt}/>
-              <button className="px-4 py-3 rounded-2xl bg-white text-black"
-                onClick={handleUpdate}
+                onChange={(e) => setPrompt(e.target.value)}
+                value={prompt}
+              />
+              <button
+                className="px-4 py-3 rounded-2xl bg-white text-black"
+                disabled={updateLoading}
+                type="submit"
               >
-                <Send size={14}/>
+                <Send size={14} />
               </button>
-            </div>
+            </form>
           </div>
-      </>
+        </>
       </aside>
 
       <div className="flex-1 flex flex-col">
@@ -141,7 +179,6 @@ function Editor() {
     </div>
   );
 
-
   function Header() {
     return (
       <div className="h-14 px-4 flex items-center justify-between border-b border-white/10">
@@ -150,6 +187,5 @@ function Editor() {
     );
   }
 }
- 
 
 export default Editor;
