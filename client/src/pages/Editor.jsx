@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { serverUrl } from "../config";
-import { Code, Code2, Monitor, Send } from "lucide-react";
+import { Code, Code2, Monitor, Send, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import Editor from '@monaco-editor/react'
 
-function Editor() {
+function WebsiteEditor() {
   const { id } = useParams();
 
   const [website, setWebsite] = useState(null);
@@ -15,6 +17,7 @@ function Editor() {
   const iframeRef = useRef(null);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [thinkingIndex, setThinkingIndex] = useState(0);
+  const [showCode, setShowCode] = useState(false);
   const thinkingSteps = [
     "Understanding your request...",
     "Planning layout changes...",
@@ -24,10 +27,10 @@ function Editor() {
   ];
 
   const handleUpdate = async () => {
-    if(!prompt) return;
+    if (!prompt) return;
     setUpdateLoading(true);
-    const text = prompt
-    setPrompt("")
+    const text = prompt;
+    setPrompt("");
     setMessages((m) => [...m, { role: "user", content: prompt }]);
     try {
       const result = await axios.post(
@@ -45,7 +48,7 @@ function Editor() {
     }
   };
   useEffect(() => {
-    if(!updateLoading) return;
+    if (!updateLoading) return;
     const i = setInterval(() => {
       setThinkingIndex((i) => (i + 1) % thinkingSteps.length);
     }, 1200);
@@ -125,11 +128,13 @@ function Editor() {
               </div>
             ))}
 
-            {updateLoading && 
-            
-            <div className="max-w-[85%] mr-auto">
-                <div className="px-4 py-2.5 rounded-2xl text-xs bg-white/5 border border-white/10 text-zinc-400 italic">{thinkingSteps[thinkingIndex]}</div>
-              </div>}
+            {updateLoading && (
+              <div className="max-w-[85%] mr-auto">
+                <div className="px-4 py-2.5 rounded-2xl text-xs bg-white/5 border border-white/10 text-zinc-400 italic">
+                  {thinkingSteps[thinkingIndex]}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="p-3 border-t border-white/10">
@@ -165,7 +170,7 @@ function Editor() {
             <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-linear-to-r from-indigo-500 to-purple-500 text-sm font-semibold hover:scale-105 transition">
               Deploy
             </button>
-            <button className="p-2">
+            <button className="p-2" onClick={() => setShowCode(true)}>
               <Code2 size={18} />
             </button>
             <button className="p-2">
@@ -176,6 +181,29 @@ function Editor() {
 
         <iframe ref={iframeRef} className="flex-1 w-full bg-white"></iframe>
       </div>
+
+      <AnimatePresence>
+        {showCode && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            className="fixed inset-y-0 right-0 w-full lg:w-[45%] x-[9999] bg-[#1e1e1e] flex flex-col"
+          >
+            <div className="h-12 px-4 flex justify-between items-center border-b border-white/10 bg-[#1e1e1e]">
+              <span className="text-sm font-medium">index.html</span>
+              <button 
+              onClick={()=>setShowCode(false)}><X size={18}/></button>
+            </div>
+            <Editor
+            theme="vs-dark"
+            value={code}
+            language="html"
+            onChange={(v)=>setCode(v)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
@@ -188,4 +216,4 @@ function Editor() {
   }
 }
 
-export default Editor;
+export default WebsiteEditor;
