@@ -217,3 +217,83 @@ export const getWebsiteById = async(req,res)=>{
         return res.status(500).json({message: `Get  website by id error : ${error}`})
     }
 }
+
+export const changes = async (req,res) =>{
+    try{
+        const {prompt}=req.body
+        if(!prompt){
+            return res.status(400).json({message:"prompt is required"})
+        }
+        const website = await Website.findOne({
+            _id:req.params.id,
+            user:req.user._id
+        }) 
+        if(!website){
+            return res.status(400).json({message: 'Website not found'})
+        }
+        const user= await User.findById(req.user._id)
+        console.log(user)
+        if(!user){
+            return res.status(400).json({message:"user not found"})
+        }
+
+        const updatePrompt = `
+                UPDATE THIS HTML WEBSITE
+                CURRENT CODE: ${website.latestCode}
+                USER REQUEST: ${prompt}
+
+                RETURN RAW JSON ONLY: 
+                {
+                    "message": "Short confirmation",
+                    "code": "<UPDATED FULL HTML>"
+                }
+                    FOOTER RULE:
+- When generating copyright FOOTER, use the latest date(2026)
+        `
+         let raw= ''
+        let parsed = null
+       //iterate until parsed data is not received
+        for(let i =0; i<2 && !parsed; i++){
+            raw = await generateResponse(updatePrompt)
+            parsed = await extractJson(raw)
+
+            if(!parsed){
+                raw = await generateResponse(updatePrompt + "\n\nRETURN ONLY RAW JSON.")
+                parsed  = await extractJson(raw)
+            }
+            console.log(raw)
+            console.log(parsed)
+        }
+
+        if(!parsed.code){
+            console.log('ai returned invalid response')
+            return res.status(400).json({message: 'ai returned invalid response'})
+        }
+
+        website.conversation.push(
+            {role: "user", content: prompt},
+            {role: "ai", content: parsed.message}
+        )
+        website.latestCode = parsed.code
+
+        await website.save()
+        await user.save()
+
+        return res.status(200).json({
+            message:parsed.message,
+            code:parsed.code
+        })
+
+    }catch(error){
+             return res.status(500).json({message: `update website error ${error}`})
+    }
+}
+
+export const getAll = async (req,res)=>{
+    try {
+        const websites = await Website.find({user:req.user._id})
+        return res.status(200).json(websites)
+    } catch (error) {
+         return res.status(500).json({message: `Get all website error ${error}`})
+    }
+    }

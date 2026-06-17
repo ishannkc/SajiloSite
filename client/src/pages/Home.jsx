@@ -90,7 +90,7 @@ function Home() {
                             <img
                                 src={avatarSrc}
                                 className='w-9 h-9 rounded-full border border-white/20 object-cover'
-                                alt='User avatar'
+                                alt='User avatar' referrerPolicy='no-referrer'
                                 onError={() => {
                                     if (avatarSrc !== fallbackAvatarUrl) {
                                         setAvatarSrc(fallbackAvatarUrl)
