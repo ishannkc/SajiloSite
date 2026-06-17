@@ -18,6 +18,8 @@ function WebsiteEditor() {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [thinkingIndex, setThinkingIndex] = useState(0);
   const [showCode, setShowCode] = useState(false);
+  const [showFullPreview, setShowFullPreview] = useState(false);
+
   const thinkingSteps = [
     "Understanding your request...",
     "Planning layout changes...",
@@ -173,7 +175,9 @@ function WebsiteEditor() {
             <button className="p-2" onClick={() => setShowCode(true)}>
               <Code2 size={18} />
             </button>
-            <button className="p-2">
+            <button className="p-2"
+                onClick={()=>setShowFullPreview(true)}
+              >
               <Monitor size={18} />
             </button>
           </div>
@@ -201,6 +205,19 @@ function WebsiteEditor() {
             language="html"
             onChange={(v)=>setCode(v)}
             />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFullPreview && (
+          <motion.div
+          className="fixed inset-0 z-9999 bg-black"
+          >
+            <iframe className="w-full h-full bg-white" srcDoc={code}/>
+            <button
+              onClick={()=>setShowFullPreview(false)}
+            className="absolute top-4 right-10 p-2 bg-black/70 rounded-lg"><X size={18}/></button>
           </motion.div>
         )}
       </AnimatePresence>

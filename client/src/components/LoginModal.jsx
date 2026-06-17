@@ -48,7 +48,7 @@ function LoginModal({open, onClose}) {
               initial={{scale:0.98, opacity:0, y:20}}
               animate={{scale:1, opacity:1, y:0}}
               exit={{scale:0.98, opacity:0, y:10}}
-              className='relative w-full max-w-md p-1 rounded-2xl bg-gradient-to-r from-purple-800/12 to-transparent'
+              className='relative w-full max-w-md p-1 rounded-2xl bg-linear-to-r from-purple-800/12 to-transparent'
               onClick={(e)=>e.stopPropagation()}
             >
 
@@ -77,7 +77,7 @@ function LoginModal({open, onClose}) {
 
                     <h2 className='text-3xl font-semibold leading-tight text-white mt-2'>
                       <span className='mr-2'>Welcome to</span>
-                      <span className='bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400'>SajiloSite</span>
+                      <span className='bg-clip-text text-transparent bg-linear-to-r from-purple-400 to-blue-400'>SajiloSite</span>
                     </h2>
 
                     <motion.button
