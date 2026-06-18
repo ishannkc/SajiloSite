@@ -2,9 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { serverUrl } from "../config";
-import { Code, Code2, Monitor, Send, X } from "lucide-react";
+import {
+  Code,
+  Code2,
+  MessageCircle,
+  MessageSquare,
+  Monitor,
+  Send,
+  X,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import Editor from '@monaco-editor/react'
+import Editor from "@monaco-editor/react";
 
 function WebsiteEditor() {
   const { id } = useParams();
@@ -19,6 +27,7 @@ function WebsiteEditor() {
   const [thinkingIndex, setThinkingIndex] = useState(0);
   const [showCode, setShowCode] = useState(false);
   const [showFullPreview, setShowFullPreview] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   const thinkingSteps = [
     "Understanding your request...",
@@ -172,12 +181,14 @@ function WebsiteEditor() {
             <button className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-linear-to-r from-indigo-500 to-purple-500 text-sm font-semibold hover:scale-105 transition">
               Deploy
             </button>
+
+            <button className="p-2 lg:hidden" onClick={() => setShowChat(true)}>
+              <MessageSquare size={18} />
+            </button>
             <button className="p-2" onClick={() => setShowCode(true)}>
               <Code2 size={18} />
             </button>
-            <button className="p-2"
-                onClick={()=>setShowFullPreview(true)}
-              >
+            <button className="p-2" onClick={() => setShowFullPreview(true)}>
               <Monitor size={18} />
             </button>
           </div>
@@ -185,6 +196,75 @@ function WebsiteEditor() {
 
         <iframe ref={iframeRef} className="flex-1 w-full bg-white"></iframe>
       </div>
+
+      <AnimatePresence>
+        {showChat && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            className="fixed inset-0 z-9999 bg-black flex flex-col"
+          >
+            <Header onclose={()=>setShowChat(false)}/>
+            {/* chat */}
+            <>
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            {messages?.map((m, i) => (
+              <div
+                key={i}
+                className={`max-w-[85%] ${
+                  m.role === "user" ? "ml-auto" : "mr-auto"
+                }`}
+              >
+                <div
+                  className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed 
+                        ${
+                          m.role === "user"
+                            ? "bg-white text-black"
+                            : "bg-white/5 border border-white/10 text-zinc-200"
+                        }`}
+                >
+                  {m.content}
+                </div>
+              </div>
+            ))}
+
+            {updateLoading && (
+              <div className="max-w-[85%] mr-auto">
+                <div className="px-4 py-2.5 rounded-2xl text-xs bg-white/5 border border-white/10 text-zinc-400 italic">
+                  {thinkingSteps[thinkingIndex]}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="p-3 border-t border-white/10">
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdate();
+              }}
+            >
+              <input
+                placeholder="Describe Changes..."
+                className="flex-1 resize-none rounded-2xl px-4 py-3 bg-white/5 border border-white/10 text-sm outline-none"
+                onChange={(e) => setPrompt(e.target.value)}
+                value={prompt}
+              />
+              <button
+                className="px-4 py-3 rounded-2xl bg-white text-black"
+                disabled={updateLoading}
+                type="submit"
+              >
+                <Send size={14} />
+              </button>
+            </form>
+          </div>
+        </>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showCode && (
@@ -196,14 +276,15 @@ function WebsiteEditor() {
           >
             <div className="h-12 px-4 flex justify-between items-center border-b border-white/10 bg-[#1e1e1e]">
               <span className="text-sm font-medium">index.html</span>
-              <button 
-              onClick={()=>setShowCode(false)}><X size={18}/></button>
+              <button onClick={() => setShowCode(false)}>
+                <X size={18} />
+              </button>
             </div>
             <Editor
-            theme="vs-dark"
-            value={code}
-            language="html"
-            onChange={(v)=>setCode(v)}
+              theme="vs-dark"
+              value={code}
+              language="html"
+              onChange={(v) => setCode(v)}
             />
           </motion.div>
         )}
@@ -211,23 +292,25 @@ function WebsiteEditor() {
 
       <AnimatePresence>
         {showFullPreview && (
-          <motion.div
-          className="fixed inset-0 z-9999 bg-black"
-          >
-            <iframe className="w-full h-full bg-white" srcDoc={code}/>
+          <motion.div className="fixed inset-0 z-9999 bg-black">
+            <iframe className="w-full h-full bg-white" srcDoc={code} />
             <button
-              onClick={()=>setShowFullPreview(false)}
-            className="absolute top-4 right-10 p-2 bg-black/70 rounded-lg"><X size={18}/></button>
+              onClick={() => setShowFullPreview(false)}
+              className="absolute top-4 right-10 p-2 bg-black/70 rounded-lg"
+            >
+              <X size={18} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 
-  function Header() {
+  function Header({onclose}) {
     return (
       <div className="h-14 px-4 flex items-center justify-between border-b border-white/10">
         <span className="font-semibold truncate">{website.title}</span>
+        {onclose && <button onClick={onclose}><X size={18} color="white"/></button>}
       </div>
     );
   }
